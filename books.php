@@ -10,6 +10,8 @@ $subject = filter_input(INPUT_GET, 'subject', FILTER_VALIDATE_INT, [
     'options' => ['min_range' => 1],
 ]);
 
+$available = ($_GET['available'] ?? '') === '1';
+
 $sql = 'SELECT books.title, books.author, books.year,
                subjects.name AS subject, books.copies,
                books.copies - books.on_loan AS available
@@ -21,6 +23,10 @@ $params = [':title' => $pattern, ':author' => $pattern];
 if (is_int($subject)) {
     $sql .= ' AND books.subject_id = :subject';
     $params[':subject'] = $subject;
+}
+
+if ($available) {
+    $sql .= ' AND books.copies > books.on_loan';
 }
 
 $sql .= ' ORDER BY books.title';
